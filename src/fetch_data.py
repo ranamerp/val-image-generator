@@ -8,19 +8,29 @@ from InquirerPy.separator import Separator
 
 def fetch_images(data_type:str)->None:
     url={}
+    path = f'.\\data\\{data_type}s'
     if data_type == 'agent':
-        response = requests.get('https://playvalorant.com/page-data/en-us/agents/page-data.json')
-        for _ in response.json()['result']['data']['allContentstackAgentList']['nodes'][0]['agent_list']:
-            url[_['related_content'][0]['title'].lower().replace('/', '')] = _['agent_image']['url']
+        response = requests.get('https://valorant-api.com/v1/agents')
+        path += '\\full_image'
+        for _ in response.json()['data']:
+            if _['role'] is None:
+                continue
+            url[_["displayName"].lower().replace('/', '')] = {
+                "full_image": _['fullPortrait'], 
+                "headshot":_['displayIcon'],
+                "role": _['role']["displayIcon"]
+    }
+            
     elif data_type == 'map':
         response = requests.get('https://valorant-api.com/v1/maps')
         for _ in response.json()['data']:
             url[_['displayName'].lower()] = _['splash']
         del url['the range']
 
-    path = f'.\\data\\{data_type}s'
+
     old = [_.replace('agent_', '').replace('map_', '').replace('.png', '') for _ in [f for f in listdir(path) if isfile(join(path, f))]]
     new = list(set(url.keys()) - set(old))
+    path = f'.\\data\\{data_type}s'
     if new:
         download(new, data_type, path, url)
     else:
@@ -31,8 +41,15 @@ def fetch_images(data_type:str)->None:
 def download(new:list, data_type:str, path:str, url:dict)->None:
     for i, _ in enumerate(new):
         progress(i, len(new), suffix=f' Downloading new {data_type} image: {_}')
-        response = requests.get(url[_], timeout=30)
-        with open(f'{path}\\{data_type}_{_}.png', 'wb') as f:
+        if len(url[_]) == 3:
+            for name, item in url[_].items():
+                response = requests.get(item, timeout=30)
+                finalpath = f'{path}\\{name}\\{data_type}_{_}.png'
+        else:
+            response = requests.get(url[_], timeout=30)
+            finalpath = f'{path}\\{data_type}_{_}.png'
+
+        with open(finalpath, 'wb') as f:
             f.write(response.content)
 
 def fetch_matches(mgr, content) -> list:

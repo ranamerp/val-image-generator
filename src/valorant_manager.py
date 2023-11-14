@@ -50,6 +50,7 @@ class Valorant:
                             "agent_display_name": [agent for agent in self.content["agents"] if player["characterId"] in agent["uuid"]][0]["display_name"],
                             "kd": str(round(player["stats"]["kills"] / (player["stats"]["deaths"] if player["stats"]["deaths"] != 0 else 1),1)),
                             "kills": player["stats"]["kills"],
+                            "deaths": player["stats"]["deaths"],
                             "combat_score": player["stats"]["score"] // total_rounds,
                         } for player in match_data["players"] if player["teamId"] == team["teamId"]
                     ] for team in match_data["teams"]

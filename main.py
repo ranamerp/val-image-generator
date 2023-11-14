@@ -18,6 +18,8 @@ def main():
         match_id = inquirer.select("Pick a match:", choices).execute()
         if match_id == "custom":
             match_id = inquirer.text("Enter match id").execute()
+            #See if you can enter team names here. 
+            #Also winning color
         elif match_id == "exit":
             break
         elif match_id == "reload":
@@ -26,8 +28,13 @@ def main():
         if match_id is not None and match_id != "":
             try:
                 print("Generating image...")
+                team_a = "LOUD" #defenders
+                team_b = "EG" #attackers
+                primary_color = (182, 164, 109)
+                secondary_color = (0, 0, 0)
+                tertiary_color = (255, 255, 255)
                 data = mgr.load_match_data(match_id)
-                builder = image_builder.Builder(data)
+                builder = image_builder.Builder(data, team_a, team_b, primary_color, secondary_color, tertiary_color)
                 builder.build_image()
             except:
                 traceback.print_exc()
