@@ -1,4 +1,5 @@
 import os
+import copy
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -246,6 +247,12 @@ class Builder:
                     },
                 },
                 "images": {
+                    "banner": {
+                        "anchor": (466, 544),
+                        "dimensions": (377, 114), 
+                        "color": self.primary_color,
+                        "justify": 'r',
+                    },
                     "agent": {
                         "anchor": (415,543),
                         "dimensions": (113,114), 
@@ -263,12 +270,6 @@ class Builder:
                         "file_path": "data/agents/role/agent_{agent}.png",
                         "justify": 'r',
                     },
-                    "banner": {
-                        "anchor": (466, 544),
-                        "dimensions": (377, 114), 
-                        "color": self.primary_color,
-                        "justify": 'r',
-                    }
                 },
             }
         }
@@ -314,15 +315,17 @@ class Builder:
 
     def draw_players(self):
         player_refs = self.image_ref_points["players"]
+        og_refs = copy.deepcopy(player_refs)
         mvp_refs = self.image_ref_points["mvps"]
         for team_id,team in enumerate(self.game_data["players"]):
             # player panels
             if team_id != 0:
+                player_refs = og_refs
                 for ref,data in player_refs["text"].items():
                     data["anchor"] = (1920 - data["anchor"][0], data['anchor'][1])
                     if data['justify'] == 'l':
                         data['justify'] = 'r'
-                        data['anchor'] = (data["anchor"][0] + data['dimensions'][0], data['anchor'][1])
+                        data['anchor'] = (data["anchor"][0] - data['dimensions'][0], data['anchor'][1])
                     elif data['justify'] == 'r':
                         data['justify'] = 'l'
                         data['anchor'] = (data["anchor"][0] - data['dimensions'][0], data['anchor'][1])
@@ -337,7 +340,7 @@ class Builder:
                         data['color'] = self.primary_color
 
                 for ref,data in player_refs["images"].items():
-                    data["anchor"] = (1920 - data["anchor"][0], data['anchor'][1])
+                    data["anchor"] = (1920 - data["anchor"][0]- data['dimensions'][0], data['anchor'][1])
                     if "color" in data:
                         if data['color'] == self.primary_color:
                             data['color'] = self.secondary_color
@@ -351,7 +354,7 @@ class Builder:
                     data["anchor"] = (1920 - data["anchor"][0], data['anchor'][1])
                     if data['justify'] == 'l':
                         data['justify'] = 'r'
-                        data['anchor'] = (data["anchor"][0] + data['dimensions'][0], data['anchor'][1])
+                        data['anchor'] = (data["anchor"][0] - data['dimensions'][0], data['anchor'][1])
                     elif data['justify'] == 'r':
                         data['justify'] = 'l'
                         data['anchor'] = (data["anchor"][0] - data['dimensions'][0], data['anchor'][1])
@@ -377,7 +380,7 @@ class Builder:
                             data['color'] = self.primary_color
 
             for position,player in enumerate(team):
-
+                
                 if position == 0:
                     # mvp player
 
@@ -407,10 +410,8 @@ class Builder:
 
                         
                         for ref,data in player_refs["text"].items():
-                            #print(f"{team_id}, {player['display_name']}, {position}, {ref}, {data['anchor']}")
                             data["anchor"] = (data["anchor"][0],data["anchor"][1]+text_offset)
                         for ref,data in player_refs["images"].items():
-                            #print(f"{team_id}, {player['display_name']}, {position}, {ref}, {data['anchor']}")
                             data["anchor"] = (data["anchor"][0],data["anchor"][1]+image_offset)
                     
                     for img_type,image in player_refs["images"].items():
@@ -430,9 +431,10 @@ class Builder:
 
                         elif img_type =="banner":
                             label_banner = Image.new("RGBA", image["dimensions"], image["color"])
+                            newanchor = image['anchor']
                             if image['justify'] == 'l':
-                                image['anchor'] = (image['anchor'][0] - image['dimensions'][0], image['anchor'][1])
-                            self.__draw_prepared_image(label_banner, image["anchor"])
+                                newanchor = (image['anchor'][0], image['anchor'][1])
+                            self.__draw_prepared_image(label_banner, newanchor)
 
                     for label_type,label in player_refs["text"].items():
                         self.__draw_text(label,int(team_id),int(position))
