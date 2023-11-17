@@ -1,6 +1,7 @@
 # **IF YOU ARE USING THIS FOR A TOURNAMENT, PLEASE PROVIDE CREDIT AS A LINK TO THIS REPO. THANKS!**
 
-# ggsheet
+
+# Valorant Post-Game Image
  Generation of Valorant Post-Game Stats.
 
 ![b2ab433e-3ac4-46d3-bc8f-1c147b04de07](https://raw.githubusercontent.com/ranamerp/val-image-generator/master/output/output.png)
@@ -31,3 +32,5 @@ Valid regions are: `na, eu, latam, br, ap, kr, pbe`
 python main.py
 ```
 Images are outputted in `/output` with the file name being the match uuid
+
+Special thanks to colinhartigan, whose code makes up the majority of this project
