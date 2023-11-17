@@ -23,6 +23,20 @@ class Valorant:
         
         total_rounds = len(match_data["roundResults"])
 
+        firstkills = {}
+        currentRound = -1
+
+        for kill in match_data['kills']:
+            itemRound = kill['round']
+            if currentRound == itemRound:
+                continue
+            killer = kill['killer']
+            if killer in firstkills:
+                firstkills[killer] += 1 
+            else:
+                firstkills[killer] = 1
+            currentRound += 1
+
         if match_data["matchInfo"]["queueID"] != "deathmatch":
             payload = {
                 "match_id": match_data["matchInfo"]["matchId"],
@@ -50,8 +64,10 @@ class Valorant:
                             "agent_display_name": [agent for agent in self.content["agents"] if player["characterId"] in agent["uuid"]][0]["display_name"],
                             "kd": str(round(player["stats"]["kills"] / (player["stats"]["deaths"] if player["stats"]["deaths"] != 0 else 1),1)),
                             "kills": player["stats"]["kills"],
+                            "first_kills": 0 if player['subject'] not in firstkills else firstkills[player["subject"]],
                             "deaths": player["stats"]["deaths"],
                             "combat_score": player["stats"]["score"] // total_rounds,
+                            "won_bool": team["won"],
                         } for player in match_data["players"] if player["teamId"] == team["teamId"]
                     ] for team in match_data["teams"]
                 ],
@@ -66,6 +82,8 @@ class Valorant:
             team_blue = [team for team in backup if team["team_name"] == "Blue"]
             team_red = [team for team in backup if team["team_name"] == "Red"]
             payload["teams"] = [team_red[0],team_blue[0]]
+
+
 
         
 

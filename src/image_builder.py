@@ -44,8 +44,8 @@ class Builder:
             }
         },
         "players": {
-            "text": 124,
-            "images": 124,
+            "text": 125,
+            "images": 125,
             "team": 739,
         },
     }
@@ -77,11 +77,17 @@ class Builder:
                 }, 
                 "images": {
                     "map": {
-                    "anchor": (48, 543),
-                    "dimensions": (1280,720),
-                    "crop": lambda *x: (491, 115, 787, 601),
-                    "file_path": "data/maps/map_{map}.png", 
-                }   
+                        "anchor": (48, 543),
+                        "dimensions": (1280,720),
+                        "crop": lambda *x: (491, 115, 787, 601),
+                        "file_path": "data/maps/map_{map}.png", 
+                    },
+                    "logo": {
+                        "anchor": (1575, 542),
+                        "dimensions": (200,200),
+                        "color": self.primary_color,
+                        "file_path": "data/misc_assets/logo.png"
+                    }   
         }
             },
             "team_details": {
@@ -194,6 +200,14 @@ class Builder:
                         "font": self.fonts["tungsten"]["mvp_stats"],
                         "var_name": lambda *x: game_data["players"][int(x[0])][int(x[1])]["combat_score"],
                         "justify": "r"
+                    },
+                    "first_kills": {
+                        "anchor": (800 - 114,456),
+                        "dimensions": (114,33),
+                        "color": self.tertiary_color,
+                        "font": self.fonts["tungsten"]["mvp_stats"],
+                        "var_name": lambda *x: game_data["players"][int(x[0])][int(x[1])]["first_kills"],
+                        "justify": "r"
                     }
                 },
                 "images": {
@@ -254,7 +268,7 @@ class Builder:
                         "justify": 'r',
                     },
                     "agent": {
-                        "anchor": (415,543),
+                        "anchor": (468,543),
                         "dimensions": (113,114), 
                         "slot_width": 114,
                         "crop": lambda *x: (abs(57-(x[0]//2)),0,57+(x[1][0]-(x[0]//2)),x[1][1]),
@@ -262,7 +276,7 @@ class Builder:
                         "justify": 'r',
                     },
                     "role": {
-                        "anchor": (463, 628),
+                        "anchor": (465, 631),
                         "dimensions": (25, 25), 
                         "slot_width": 114,
                         "color": self.primary_color,
@@ -302,11 +316,21 @@ class Builder:
             self.__draw_text(team_wl_label,int(team_id))
 
 
-    def draw_header_footer(self):
+    def draw_header_footer(self, path=None):
         refs = self.image_ref_points["header_footer"]
         for img_type, image in refs["images"].items():
-            new_img = Image.open(os.path.join(Builder.cur_path,*image["file_path"].format(map=self.game_data['match_map_display_name'].lower(),mode=self.game_data['match_mode'].lower()).split("/"))).convert("RGBA")
-            self.__draw_image(image,new_img)
+            if img_type == "map":
+                new_img = Image.open(os.path.join(Builder.cur_path,*image["file_path"].format(map=self.game_data['match_map_display_name'].lower(),mode=self.game_data['match_mode'].lower()).split("/"))).convert("RGBA")
+                self.__draw_image(image,new_img)
+            elif img_type == "logo":
+                background = Image.new("RGBA", (296, 488), image["color"])
+                self.__draw_prepared_image(background, image["anchor"])
+                if path != None:
+                    image['file_path'] = path
+                placelogo = Image.open(image['file_path']).convert("RGBA")
+                placelogo.thumbnail(image['dimensions'], Image.Resampling.LANCZOS)
+                newanchor = (image['anchor'][0] + (96 // 2), image["anchor"][1] + (288 // 2))
+                self.__draw_prepared_image(placelogo, newanchor)
 
 
         for label_type,label in refs["text"].items():
@@ -321,63 +345,68 @@ class Builder:
             # player panels
             if team_id != 0:
                 player_refs = og_refs
-                for ref,data in player_refs["text"].items():
-                    data["anchor"] = (1920 - data["anchor"][0], data['anchor'][1])
-                    if data['justify'] == 'l':
-                        data['justify'] = 'r'
-                        data['anchor'] = (data["anchor"][0] - data['dimensions'][0], data['anchor'][1])
-                    elif data['justify'] == 'r':
-                        data['justify'] = 'l'
-                        data['anchor'] = (data["anchor"][0] - data['dimensions'][0], data['anchor'][1])
-                    else:
-                        data['justify'] = 'c'
 
+            for ref,data in player_refs["text"].items():
+                if not team[0]['won_bool'] and "color" in data:
                     if data['color'] == self.primary_color:
                         data['color'] = self.secondary_color
                     elif data["color"] == self.secondary_color:
                         data['color'] = self.tertiary_color
                     else:
                         data['color'] = self.primary_color
-
-                for ref,data in player_refs["images"].items():
-                    data["anchor"] = (1920 - data["anchor"][0]- data['dimensions'][0], data['anchor'][1])
-                    if "color" in data:
-                        if data['color'] == self.primary_color:
-                            data['color'] = self.secondary_color
-                        elif data["color"] == self.secondary_color:
-                            data['color'] = self.tertiary_color
-                        else:
-                            data['color'] = self.primary_color
-                
-                # team offset (mvps)
-                for ref,data in mvp_refs["text"].items():
-                    data["anchor"] = (1920 - data["anchor"][0], data['anchor'][1])
-                    if data['justify'] == 'l':
-                        data['justify'] = 'r'
-                        data['anchor'] = (data["anchor"][0] - data['dimensions'][0], data['anchor'][1])
-                    elif data['justify'] == 'r':
-                        data['justify'] = 'l'
-                        data['anchor'] = (data["anchor"][0] - data['dimensions'][0], data['anchor'][1])
-                    else:
-                        data['justify'] = 'c'
-
-                    if data['color'] == self.primary_color:
-                        data['color'] = self.secondary_color
-                    elif data["color"] == self.secondary_color:
-                        data['color'] = self.tertiary_color
-                    else:
-                        data['color'] = self.primary_color
-
                     
-                for ref,data in mvp_refs["images"].items():
+                if team_id != 0:
                     data["anchor"] = (1920 - data["anchor"][0], data['anchor'][1])
-                    if "color" in data:
-                        if data['color'] == self.primary_color:
-                            data['color'] = self.secondary_color
-                        elif data["color"] == self.secondary_color:
-                            data['color'] = self.tertiary_color
-                        else:
-                            data['color'] = self.primary_color
+                    if data['justify'] == 'l':
+                        data['justify'] = 'r'
+                        data['anchor'] = (data["anchor"][0] - data['dimensions'][0], data['anchor'][1])
+                    elif data['justify'] == 'r':
+                        data['justify'] = 'l'
+                        data['anchor'] = (data["anchor"][0] - data['dimensions'][0], data['anchor'][1])
+                    else:
+                        data['justify'] = 'c'
+
+
+            for ref,data in player_refs["images"].items():
+                if team_id != 0:    
+                    data["anchor"] = (1920 - data["anchor"][0]- data['dimensions'][0], data['anchor'][1])
+                
+                if not team[0]['won_bool'] and "color" in data:
+                    if data['color'] == self.primary_color:
+                        data['color'] = self.secondary_color
+                    elif data["color"] == self.secondary_color:
+                        data['color'] = self.tertiary_color
+                    else:
+                        data['color'] = self.primary_color
+                
+                    
+
+                # team offset (mvps)
+            for ref,data in mvp_refs["text"].items():
+                if team_id != 0:
+                    data["anchor"] = (1920 - data["anchor"][0], data['anchor'][1])
+                    if data['justify'] == 'l':
+                        data['justify'] = 'r'
+                        data['anchor'] = (data["anchor"][0] - data['dimensions'][0], data['anchor'][1])
+                    elif data['justify'] == 'r':
+                        data['justify'] = 'l'
+                        data['anchor'] = (data["anchor"][0] - data['dimensions'][0], data['anchor'][1])
+                    else:
+                        data['justify'] = 'c'
+                
+
+                
+            for ref,data in mvp_refs["images"].items():
+                if team_id != 0:
+                    data["anchor"] = (1920 - data["anchor"][0], data['anchor'][1])
+                
+                if not team[0]['won_bool'] and "color" in data:
+                    if data['color'] == self.primary_color:
+                        data['color'] = self.secondary_color
+                    elif data["color"] == self.secondary_color:
+                        data['color'] = self.tertiary_color
+                    else:
+                        data['color'] = self.primary_color
 
             for position,player in enumerate(team):
                 
@@ -421,13 +450,21 @@ class Builder:
                         
                         if img_type == "agent": 
                             new_img = Image.open(os.path.join(Builder.cur_path,*image["file_path"].format(agent=player['agent_display_name']).split("/"))).convert("RGBA")
-                            self.__draw_image(image,new_img,size_axis="x",crop_vars=(image["slot_width"],image["dimensions"]),anchor_override=(image["anchor"][0]+45,image["anchor"][1]))
+                            newanchor = image['anchor']
+                            if image['justify'] == 'l':
+                                newanchor = (image['anchor'][0] + 120, image['anchor'][1])
+                            self.__draw_image(image,new_img,size_axis="x",crop_vars=(image["slot_width"],image["dimensions"]),anchor_override=newanchor)
 
                         elif img_type =="role":
-                            role_square = Image.new("RGBA", (image["dimensions"][0] + 3, image["dimensions"][1] + 3), image["color"])
-                            self.__draw_prepared_image(role_square, image["anchor"])
+                            newanchor = image['anchor']
+                            roleanchor = (newanchor[0] - 25, newanchor[1])
+                            if image['justify'] == 'l':
+                                newanchor = (image['anchor'][0] + 25, image['anchor'][1])
+                                roleanchor = (newanchor[0], newanchor[1])
+                            role_square = Image.new("RGBA", (image["dimensions"][0], image["dimensions"][1]), self.primary_color)
+                            self.__draw_prepared_image(role_square, roleanchor)
                             new_img = Image.open(os.path.join(Builder.cur_path,*image["file_path"].format(agent=player['agent_display_name']).split("/"))).convert("RGBA")
-                            self.__draw_image(image,new_img,size_axis="x",crop_vars=(image["slot_width"],image["dimensions"]),anchor_override=(image["anchor"][0] + 1,image["anchor"][1] + 1))
+                            self.__draw_image(image,new_img,size_axis="x",crop_vars=(image["slot_width"],image["dimensions"]), anchor_override=newanchor)
 
                         elif img_type =="banner":
                             label_banner = Image.new("RGBA", image["dimensions"], image["color"])
@@ -440,16 +477,18 @@ class Builder:
                         self.__draw_text(label,int(team_id),int(position))
 
 
-    def build_image(self):
+    def build_image(self, path_var, logo_path):
         
 
-        self.draw_header_footer()
+        self.draw_header_footer(logo_path)
         self.draw_team_details()
         self.draw_players()
 
-
-        self.img.save(os.path.join(Builder.cur_path,f"output/{self.game_data['match_id']}.png"))
-        print(f"Done, image saved to output/{self.game_data['match_id']}.png \n")
+        outputstring = "output"
+        if not path_var:
+            outputstring= self.game_data['match_id']
+        self.img.save(os.path.join(Builder.cur_path,f"output/{outputstring}.png"))
+        print(f"Done, image saved to output/{outputstring}.png \n")
 
     def __draw_image(self,img_data,new_img,size_axis="y",crop_vars=(),anchor_override=None,no_draw=False):
         width, height = new_img.size
