@@ -31,6 +31,6 @@ Valid regions are: `na, eu, latam, br, ap, kr, pbe`
 ```cmd
 python main.py
 ```
-Images are outputted in `/output` with the file name being the match uuid
+Images are outputted in `/output` with the file name being either output.png, or the matchid of the game.
 
 Special thanks to colinhartigan, whose code makes up the majority of this project
