@@ -13,25 +13,41 @@ def main():
     fetch_images('agent')
     fetch_images('map')
     choices = fetch_matches(mgr, content) + [Choice(name="Reload", value="reload"), Choice(name="Exit", value="exit")]
-
+    previous_choices = {
+        "team_a": "DEF",
+        "team_b": "ATK",
+        "primary": "#b6a46d",
+        "secondary": "#000000",
+        "tertiary": "#ffffff",
+        "logo": "data/misc_assets/logo.png" 
+    }
     while True:
         match_id = inquirer.select("Pick a match:", choices).execute()
         if match_id == "custom":
             match_id = inquirer.text("Enter match id").execute()
-            team_a = inquirer.text("Enter Team A (Defenders)", default="DEF").execute()
-            team_b = inquirer.text("Enter Team B (Attackers)", default="ATK").execute()
-            primary_color = inquirer.text("Enter Primary Color in hex(Winning Banners)", default='#b6a46d').execute()
+            team_a = inquirer.text("Enter Team A (Attackers)", default=previous_choices['team_a']).execute()
+            previous_choices['team_a'] = team_a
+            
+            team_b = inquirer.text("Enter Team B (Defenders)", default=previous_choices['team_b']).execute()
+            previous_choices['team_b'] = team_b
+            
+            primary_color = inquirer.text("Enter Primary Color in hex(Winning Banners)", default=previous_choices['primary']).execute()
+            previous_choices['primary'] = primary_color
             primary_color = tuple(int(primary_color.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
-            secondary_color = inquirer.text("Enter Secondary Color (Losing Banners)", default='#000000').execute()
+            
+            secondary_color = inquirer.text("Enter Secondary Color (Losing Banners)", default=previous_choices['secondary']).execute()
+            previous_choices['secondary'] = secondary_color
             secondary_color = tuple(int(secondary_color.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
-            tertiary_color = inquirer.text("Enter Third Color (Text)", default='#ffffff').execute()
+            
+            tertiary_color = inquirer.text("Enter Third Color (Text)", default=previous_choices['tertiary']).execute()
+            previous_choices['tertiary'] = tertiary_color
             tertiary_color = tuple(int(tertiary_color.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
-            logo_path = inquirer.text("Enter logo path", default="None").execute()
-            if logo_path == "None":
-                logo_path = None
+            
+            logo_path = inquirer.text("Enter logo path", default=previous_choices['logo']).execute()
+            previous_choices['logo'] = logo_path
             path_var = inquirer.select("Output to same file?:", [Choice(name="Yes", value=True), Choice(name="No", value=False)]).execute()
-            #See if you can enter team names here. 
-            #Also winning color
+
+            
         elif match_id == "exit":
             break
         elif match_id == "reload":
