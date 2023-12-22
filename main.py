@@ -24,7 +24,7 @@ def main():
     while True:
         match_id = inquirer.select("Pick a match:", choices).execute()
         if match_id == "custom":
-            match_id = inquirer.text("Enter match id").execute()
+            match_id = inquirer.text("Enter match id (Found on tracker.gg)").execute()
             team_a = inquirer.text("Enter Team A (Attackers)", default=previous_choices['team_a']).execute()
             previous_choices['team_a'] = team_a
             
@@ -44,6 +44,7 @@ def main():
             tertiary_color = tuple(int(tertiary_color.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
             
             logo_path = inquirer.text("Enter logo path", default=previous_choices['logo']).execute()
+            logo_path = logo_path.strip('\"')
             previous_choices['logo'] = logo_path
             path_var = inquirer.select("Output to same file?:", [Choice(name="Yes", value=True), Choice(name="No", value=False)]).execute()
 

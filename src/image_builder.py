@@ -57,8 +57,8 @@ class Builder:
 
         self.team_red_name = team_a #defenders
         self.team_blue_name = team_b  #attackers
-        self.primary_color = prime,
-        self.secondary_color = second,
+        self.primary_color = prime
+        self.secondary_color = second
         self.tertiary_color = ter
 
         self.image_ref_points = {
