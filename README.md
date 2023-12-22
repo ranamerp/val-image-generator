@@ -1,5 +1,3 @@
-# **IF YOU ARE USING THIS FOR A TOURNAMENT, PLEASE PROVIDE CREDIT AS A LINK TO THIS REPO. THANKS!**
-
 
 # Valorant Post-Game Image
  Generation of Valorant Post-Game Stats.
@@ -27,7 +25,10 @@ In `src/valorant_manager.py` change `Client(region="na")` to your region.
 
 Valid regions are: `na, eu, latam, br, ap, kr, pbe`
 
-### 4. Run
+### 4. Open Valorant
+Valorant must be running for this code to work.
+
+### 5. Run
 ```cmd
 python main.py
 ```
