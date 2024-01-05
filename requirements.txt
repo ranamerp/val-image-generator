@@ -1,4 +1,4 @@
 valclient
 requests
 Pillow
-Inquirer
+inquirerpy
