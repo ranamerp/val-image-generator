@@ -12,7 +12,7 @@ class Builder:
 
     fonts = {
         "ddin": {
-            "mvp_agent": ImageFont.truetype(os.path.join(cur_path,"data\\fonts\\DINNextLTPro-Medium.ttf"), 28),
+            "mvp_agent": ImageFont.truetype(os.path.join(cur_path,"data/fonts/DINNextLTPro-Medium.ttf"), 28),
             "player_agent": ImageFont.truetype(os.path.join(cur_path,"data/fonts/DINNextLTPro-Medium.ttf"), 14),
             "map_label": ImageFont.truetype(os.path.join(cur_path,"data/fonts/DINNextLTPro-Regular.ttf"), 40),
             "map_text": ImageFont.truetype(os.path.join(cur_path,"data/fonts/DINNextLTPro-Medium.ttf"), 45),

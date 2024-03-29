@@ -9,7 +9,7 @@ from src.fetch_data import fetch_images, fetch_matches
 
 def main():
     mgr = valorant_manager.Valorant()
-    content = mgr.content
+    #content = mgr.content
 
     fetch_images('agent')
     fetch_images('map')
@@ -27,7 +27,7 @@ def main():
     while True:
         match_id = inquirer.select("Pick an option:", new_choices).execute()
         if match_id == "json":
-            match_id = inquirer.text("Enter match id (Found on tracker.gg)").execute()
+            match_id = inquirer.text("Enter player name with tag").execute()
             overwrite = inquirer.select("Overwrite Team Names from File?:", [Choice(name="Yes", value=True), Choice(name="No", value=False)]).execute()
             with open("colors.json", "r") as data:
                 choices = json.load(data)
@@ -79,6 +79,9 @@ def main():
             try:
                 print("Generating image...")
                 data = mgr.load_match_data(match_id)
+                # with open("match_reference_2.json", "r") as f:
+                #     #f.write(json.dumps(data))
+                #     data = json.load(f)                       
                 builder = image_builder.Builder(data, team_a, team_b, primary_color, secondary_color, tertiary_color)
                 builder.build_image(path_var, logo_path)
             except:

@@ -8,10 +8,10 @@ from InquirerPy.separator import Separator
 
 def fetch_images(data_type:str)->None:
     url={}
-    path = f'.\\data\\{data_type}s'
+    path = f'./data/{data_type}s'
     if data_type == 'agent':
         response = requests.get('https://valorant-api.com/v1/agents')
-        path += '\\full_image'
+        path += '/full_image'
         for _ in response.json()['data']:
             if _['role'] is None:
                 continue
@@ -30,7 +30,7 @@ def fetch_images(data_type:str)->None:
 
     old = [_.replace('agent_', '').replace('map_', '').replace('.png', '') for _ in [f for f in listdir(path) if isfile(join(path, f))]]
     new = list(set(url.keys()) - set(old))
-    path = f'.\\data\\{data_type}s'
+    path = f'./data/{data_type}s'
     if new:
         download(new, data_type, path, url)
     else:
