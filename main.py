@@ -2,6 +2,7 @@ import traceback
 import json
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
+import requests
 
 from src import valorant_manager
 from src import image_builder
@@ -14,7 +15,8 @@ def main():
     fetch_images('agent')
     fetch_images('map')
     #choices = fetch_matches(mgr, content) + [Choice(name="Reload", value="reload"), Choice(name="Exit", value="exit")]
-    new_choices = [Choice(name="Use JSON", value="json"), Choice(name="Enter Values", value="values"), Choice(name="Exit", value="exit")]
+    new_choices = [Choice(name="Use JSON", value="json"), Choice(name="Enter Values", value="values")]
+
     previous_choices = {
         "team_a": "DEF",
         "team_b": "ATK",
@@ -24,11 +26,36 @@ def main():
         "logo": "data/misc_assets/logo.png",
         "output": True
     }
+    player_tag = inquirer.text("Enter player name with tag").execute()
+    tags = player_tag.split('#')
+    name = tags[0]
+    tag = tags[1]
+    matchapiv3 = f'https://api.henrikdev.xyz/valorant/v3/matches/na/{name}/{tag}' 
+        
+    match = requests.get(matchapiv3)
+    match_data = match.json()
+    matches = []
+    for item in match_data['data']:
+        if item['metadata']['mode'].lower() == "custom game":
+            name = f"{item['metadata']['map']} ({item['metadata']['game_start_patched']})"
+            matches.append(Choice(name = name, value = item))
+    
+
+    matches.append(Choice(name="Exit", value="exit"))
+
+    if len(matches) <= 0:
+        print("Not enough matches. Please try again")
+        exit(-1)
+
     while True:
-        match_id = inquirer.select("Pick an option:", new_choices).execute()
+        chosen_match = inquirer.select("Choose a match:", matches).execute()
+        if chosen_match == "exit":
+            break
+
+        match_id = inquirer.select("Choose customization options:", new_choices).execute()
         if match_id == "json":
-            match_id = inquirer.text("Enter player name with tag").execute()
-            overwrite = inquirer.select("Overwrite Team Names from File?:", [Choice(name="Yes", value=True), Choice(name="No", value=False)]).execute()
+            #match_id = inquirer.text("Enter player name with tag").execute()
+            overwrite = inquirer.select("Overwrite Team Names from File?:", [Choice(name="No", value=False), Choice(name="Yes", value=True)]).execute()
             with open("colors.json", "r") as data:
                 choices = json.load(data)
                 team_a = choices['team_a']
@@ -45,7 +72,7 @@ def main():
 
 
         elif match_id == "custom":
-            match_id = inquirer.text("Enter match id (Found on tracker.gg)").execute()
+            #match_id = inquirer.text("Enter player name with tag").execute()
             team_a = inquirer.text("Enter Team A (Attackers)", default=previous_choices['team_a']).execute()
             previous_choices['team_a'] = team_a
             
@@ -70,15 +97,15 @@ def main():
             path_var = inquirer.select("Output to same file?:", [Choice(name="Yes", value=True), Choice(name="No", value=False)]).execute()
 
             
-        elif match_id == "exit":
-            break
+        # elif match_id == "exit":
+        #     break
         # elif match_id == "reload":
         #     choices[:-2] = fetch_matches(mgr, content)
         #     continue
         if match_id is not None and match_id != "":
             try:
                 print("Generating image...")
-                data = mgr.load_match_data(match_id)
+                data = mgr.load_match_data(chosen_match)
                 # with open("match_reference_2.json", "r") as f:
                 #     #f.write(json.dumps(data))
                 #     data = json.load(f)                       

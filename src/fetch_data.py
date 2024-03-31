@@ -8,10 +8,12 @@ from InquirerPy.separator import Separator
 
 def fetch_images(data_type:str)->None:
     url={}
-    path = f'./data/{data_type}s'
+    #path = f'./data/{data_type}s'
+    path = join('.', 'data', f'{data_type}s')
     if data_type == 'agent':
         response = requests.get('https://valorant-api.com/v1/agents')
-        path += '/full_image'
+        #path += '/full_image'
+        path = join(path, 'full_image')
         for _ in response.json()['data']:
             if _['role'] is None:
                 continue
@@ -30,7 +32,8 @@ def fetch_images(data_type:str)->None:
 
     old = [_.replace('agent_', '').replace('map_', '').replace('.png', '') for _ in [f for f in listdir(path) if isfile(join(path, f))]]
     new = list(set(url.keys()) - set(old))
-    path = f'./data/{data_type}s'
+    #path = f'./data/{data_type}s'
+    path = join('.', 'data', f'{data_type}s')
     if new:
         download(new, data_type, path, url)
     else:
@@ -44,17 +47,22 @@ def download(new:list, data_type:str, path:str, url:dict)->None:
         if len(url[_]) == 3:
             for name, item in url[_].items():
                 response = requests.get(item, timeout=30)
-                finalpath = f'{path}\\{name}\\{data_type}_{_}.png'
+                #finalpath = f'{path}/{name}\\{data_type}_{_}.png'
+                finalpath = join(path, name, f"{data_type}_{_}.png")
+                with open(finalpath, 'wb') as f:
+                    f.write(response.content)
         else:
             response = requests.get(url[_], timeout=30)
-            finalpath = f'{path}\\{data_type}_{_}.png'
+            #finalpath = f'{path}/{data_type}_{_}.png'
+            finalpath = join(path, f"{data_type}_{_}.png")
 
-        with open(finalpath, 'wb') as f:
-            f.write(response.content)
+        # with open(finalpath, 'wb') as f:
+        #     f.write(response.content)
 
 def fetch_matches(mgr, content) -> list:
     matches = mgr.client.fetch_match_history()["History"]
     choices = [Choice("custom", "use my own match id"), Separator()]
+
     for i, match in enumerate(matches):
         match_data = mgr.client.fetch_match_details(match["MatchID"])
 

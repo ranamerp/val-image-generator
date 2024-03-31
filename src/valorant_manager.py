@@ -13,18 +13,18 @@ class Valorant:
     #     self.client.activate()
     #     self.content = Loader.load_all_content(self.client)
 
-    def load_match_data(self, player_tag):
+    def load_match_data(self, match_data):
         
-        tags = player_tag.split('#')
-        name = tags[0]
-        tag = tags[1]
-        matchapiv3 = f'https://api.henrikdev.xyz/valorant/v3/matches/na/{name}/{tag}' 
+        # tags = player_tag.split('#')
+        # name = tags[0]
+        # tag = tags[1]
+        # matchapiv3 = f'https://api.henrikdev.xyz/valorant/v3/matches/na/{name}/{tag}' 
         
-        match = requests.get(matchapiv3)
-        match_data = match.json()
+        # match = requests.get(matchapiv3)
+        # match_data = match.json()
         
         #For now taking last map, but should set this up to be whatever map out of last 5 is chosen
-        match_data = match_data['data'][0]
+        #match_data = match_data['data'][0]
         #match_data = self.client.fetch_match_details(match_id)
         
         # with open("match_reference.json", "w") as f:
