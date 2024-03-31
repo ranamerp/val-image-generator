@@ -41,7 +41,7 @@ class Valorant:
             itemRound = kill['round']
             if currentRound == itemRound:
                 continue
-            killer = kill['killer_display_name']
+            killer = kill['killer_puuid']
             if killer in firstkills:
                 firstkills[killer] += 1 
             else:
@@ -76,7 +76,7 @@ class Valorant:
                             #"agent_display_name": [agent for agent in self.content["agents"] if player["characterId"] in agent["uuid"]][0]["display_name"],
                             "kd": str(round(player["stats"]["kills"] / (player["stats"]["deaths"] if player["stats"]["deaths"] != 0 else 1),1)),
                             "kills": player["stats"]["kills"],
-                            "first_kills": 0 if player['puuid'] not in firstkills else firstkills[player["subject"]],
+                            "first_kills": 0 if player['puuid'] not in firstkills else firstkills[player["puuid"]],
                             "deaths": player["stats"]["deaths"],
                             "combat_score": player["stats"]["score"] // total_rounds,
                             "won_bool": match_data['teams'][team]["has_won"],
