@@ -7,7 +7,7 @@
 ## Usage
 
 ### Prerequisites
-Python >= 3.7. To download Python, follow [these] (https://github.com/PackeTsar/Install-Python/blob/master/README.md) instructions. 
+Python >= 3.7. To download Python, follow [these](https://github.com/PackeTsar/Install-Python/blob/master/README.md) instructions. 
 
 
 ### 1. Clone GitHub Repository
