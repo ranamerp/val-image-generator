@@ -38,6 +38,9 @@ def main():
         matchapiv3 = f'https://api.henrikdev.xyz/valorant/v3/matches/na/{name}/{tag}' 
             
         match = requests.get(matchapiv3,  headers={'Authorization': 'HDEV-de097c2b-bc59-4f35-a19b-f9308d212407'})
+        if match.status_code != 200:
+            print("There was a problem with the API. Please try again later or contact TeeHaychZee.")
+            exit(-1)
         match_data = match.json()
         for item in match_data['data']:
             if item['metadata']['mode'].lower() == "custom game":
