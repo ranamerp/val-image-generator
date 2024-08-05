@@ -26,16 +26,15 @@ def main():
         "logo": "data/misc_assets/logo.png",
         "output": True
     }
-    #input_choices = [Choice(name="Use Player Name", value="playername"), Choice(name="Enter Match ID", value="matchid")]
-    #chosen_choice = inquirer.select("Choose input option:", input_choices).execute()
-    chosen_choice = "playername"
+    input_choices = [Choice(name="Use Player Name", value="playername"), Choice(name="Enter Match ID", value="matchid")]
+    chosen_choice = inquirer.select("Choose input option:", input_choices).execute()
     matches = []
     if chosen_choice == "playername":
         player_tag = inquirer.text("Enter player name with tag").execute()
         tags = player_tag.split('#')
         name = tags[0]
         tag = tags[1]
-        matchapiv3 = f'https://api.henrikdev.xyz/valorant/v3/matches/na/{name}/{tag}' 
+        matchapiv3 = f'https://api.henrikdev.xyz/valorant/v4/matches/na/pc/{name}/{tag}?mode=custom' 
             
         match = requests.get(matchapiv3,  headers={'Authorization': 'HDEV-de097c2b-bc59-4f35-a19b-f9308d212407'})
         if match.status_code != 200:
@@ -43,15 +42,18 @@ def main():
             exit(-1)
         match_data = match.json()
         for item in match_data['data']:
-            if item['metadata']['mode'].lower() == "custom game":
-                name = f"{item['metadata']['map']} ({item['metadata']['game_start_patched']})"
-                matches.append(Choice(name = name, value = item))
+            name = f"{item['metadata']['map']['name']} ({item['metadata']['started_at']})"
+            matches.append(Choice(name = name, value = item))
+    
     elif chosen_choice == "matchid":
         match_idd = inquirer.text("Enter match id").execute()
-        matchapiv2 = f'https://api.henrikdev.xyz/valorant/v2/match/{match_idd}'
+        matchapiv2 = f'https://api.henrikdev.xyz/valorant/v4/match/na/{match_idd}'
         res = requests.get(matchapiv2,  headers={'Authorization': 'HDEV-de097c2b-bc59-4f35-a19b-f9308d212407'})
-        matchData = res.json()
-        name = "test"
+        match_data = res.json()
+        #print(match_data)
+        item = match_data['data']
+        name = f"{item['metadata']['map']['name']} ({item['metadata']['started_at']})"
+        matches.append(Choice(name = name, value = item))
     
 
     matches.append(Choice(name="Exit", value="exit"))

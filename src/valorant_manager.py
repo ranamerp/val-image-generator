@@ -31,7 +31,8 @@ class Valorant:
         #     f.write(json.dumps(match_data))
         
         #total_rounds = len(match_data["roundResults"])
-        total_rounds = match_data['metadata']['rounds_played']
+        #total_rounds = match_data['metadata']['rounds_played']
+        total_rounds = len(match_data['rounds'])
         
 
         firstkills = {}
@@ -41,29 +42,29 @@ class Valorant:
             itemRound = kill['round']
             if currentRound == itemRound:
                 continue
-            killer = kill['killer_puuid']
+            killer = kill['killer']['puuid']
             if killer in firstkills:
                 firstkills[killer] += 1 
             else:
                 firstkills[killer] = 1
             currentRound += 1
 
-        if match_data["metadata"]["mode"] != "Deathmatch":
+        if match_data["metadata"]["queue"]['id'] != "Deathmatch":
             payload = {
-                "match_id": match_data["metadata"]["matchid"],
-                "match_map_display_name": match_data["metadata"]["map"],
-                "match_mode": match_data["metadata"]["mode"],
+                "match_id": match_data["metadata"]["match_id"],
+                "match_map_display_name": match_data["metadata"]["map"]['name'],
+                "match_mode": match_data["metadata"]["queue"]['name'],
                 #"timestamp": datetime.datetime.fromtimestamp(match_data["metadata"]["game_start"]//1000).strftime('%m/%d/%Y %H:%M:%S'),
-                "timestamp": match_data['metadata']['game_start_patched'],
+                "timestamp": match_data['metadata']['started_at'],
                 #"match_mode_display_name": self.content["queue_aliases"][match_data["matchInfo"]["queueID"]],
                 #"match_map_display_name": [gmap for gmap in self.content["maps"] if match_data["matchInfo"]["mapId"] in gmap["path"]][0]["display_name"],
                 "teams": [
                     {
-                        "team_name": team,
-                        "team_alias": "ATK" if team == "Red" else "DEF",
-                        "won_bool": match_data['teams'][team]["has_won"],
-                        "won": "WIN" if match_data['teams'][team]["has_won"] else "LOSS",
-                        "rounds_won": match_data['teams'][team]["rounds_won"],
+                        "team_name": team['team_id'],
+                        "team_alias": "ATK" if team['team_id'] == "Red" else "DEF",
+                        "won_bool": team["won"],
+                        "won": "WIN" if team["won"] else "LOSS",
+                        "rounds_won": team["rounds"]['won'],
                     } for team in match_data["teams"]
                 ],
                 "players": [
@@ -71,16 +72,16 @@ class Valorant:
                         {
                             "puuid": player["puuid"],
                             "display_name": player["name"],
-                            "team_id": player["team"],
-                            "agent_display_name": "kayo" if player["character"].lower() == "kay/o" else player['character'].lower(),
+                            "team_id": player["team_id"],
+                            "agent_display_name": "kayo" if player["agent"]['name'].lower() == "kay/o" else player["agent"]['name'].lower(),
                             #"agent_display_name": [agent for agent in self.content["agents"] if player["characterId"] in agent["uuid"]][0]["display_name"],
                             "kd": str(round(player["stats"]["kills"] / (player["stats"]["deaths"] if player["stats"]["deaths"] != 0 else 1),1)),
                             "kills": player["stats"]["kills"],
                             "first_kills": 0 if player['puuid'] not in firstkills else firstkills[player["puuid"]],
                             "deaths": player["stats"]["deaths"],
                             "combat_score": player["stats"]["score"] // total_rounds,
-                            "won_bool": match_data['teams'][team]["has_won"],
-                        } for player in match_data["players"][team]
+                            "won_bool": team["won"],
+                        } for player in match_data["players"] if player['team_id'] == team['team_id']
                     ] for team in match_data["teams"]
                 ],
             }
@@ -89,12 +90,11 @@ class Valorant:
             # sort players by combat score
             payload["players"] = [sorted(team, key=lambda k: k["combat_score"], reverse=True) for team in payload["players"]]
 
-
             # sort teams by red/blue
             backup = payload["teams"].copy()
 
-            team_blue = [team for team in backup if team["team_name"] == "blue"]
-            team_red = [team for team in backup if team["team_name"] == "red"]
+            team_blue = [team for team in backup if team["team_name"] == "Blue"]
+            team_red = [team for team in backup if team["team_name"] == "Red"]
             payload["teams"] = [team_red[0],team_blue[0]]
             #payload["teams"] = [team_blue[0], team_red[0]]
 

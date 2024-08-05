@@ -320,6 +320,7 @@ class Builder:
         refs = self.image_ref_points["header_footer"]
         for img_type, image in refs["images"].items():
             if img_type == "map":
+                #print(image['file_path'])
                 new_img = Image.open(os.path.join(Builder.cur_path,*image["file_path"].format(map=self.game_data['match_map_display_name'].lower(),mode=self.game_data['match_mode'].lower()).split("/"))).convert("RGBA")
                 self.__draw_image(image,new_img)
             elif img_type == "logo":
