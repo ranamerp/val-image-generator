@@ -44,6 +44,7 @@ def fetch_images(data_type:str)->None:
 def download(new:list, data_type:str, path:str, url:dict)->None:
     for i, _ in enumerate(new):
         progress(i, len(new), suffix=f' Downloading new {data_type} image: {_}')
+        
         if len(url[_]) == 3:
             for name, item in url[_].items():
                 response = requests.get(item, timeout=30)
@@ -56,8 +57,8 @@ def download(new:list, data_type:str, path:str, url:dict)->None:
             #finalpath = f'{path}/{data_type}_{_}.png'
             finalpath = join(path, f"{data_type}_{_}.png")
 
-        # with open(finalpath, 'wb') as f:
-        #     f.write(response.content)
+        with open(finalpath, 'wb') as f:
+            f.write(response.content)
 
 def fetch_matches(mgr, content) -> list:
     matches = mgr.client.fetch_match_history()["History"]
