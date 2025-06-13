@@ -27,6 +27,8 @@ def main():
         "output": True
     }
     input_choices = [Choice(name="Use Player Name", value="playername"), Choice(name="Enter Match ID", value="matchid")]
+    region_choices = [Choice(name="NA", value="na"), Choice(name="EU", value="eu")]
+    region = inquirer.select("Choose region:", region_choices).execute()
     chosen_choice = inquirer.select("Choose input option:", input_choices).execute()
     matches = []
     if chosen_choice == "playername":
@@ -34,7 +36,7 @@ def main():
         tags = player_tag.split('#')
         name = tags[0]
         tag = tags[1]
-        matchapiv3 = f'https://api.henrikdev.xyz/valorant/v4/matches/na/pc/{name}/{tag}?mode=custom' 
+        matchapiv3 = f'https://api.henrikdev.xyz/valorant/v4/matches/{region}/pc/{name}/{tag}?mode=custom' 
             
         match = requests.get(matchapiv3,  headers={'Authorization': 'HDEV-de097c2b-bc59-4f35-a19b-f9308d212407'})
         if match.status_code != 200:
@@ -47,7 +49,7 @@ def main():
     
     elif chosen_choice == "matchid":
         match_idd = inquirer.text("Enter match id").execute()
-        matchapiv2 = f'https://api.henrikdev.xyz/valorant/v4/match/na/{match_idd}'
+        matchapiv2 = f'https://api.henrikdev.xyz/valorant/v4/match/{region}/{match_idd}'
         res = requests.get(matchapiv2,  headers={'Authorization': 'HDEV-de097c2b-bc59-4f35-a19b-f9308d212407'})
         match_data = res.json()
         #print(match_data)
